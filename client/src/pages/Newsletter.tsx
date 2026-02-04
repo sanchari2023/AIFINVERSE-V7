@@ -501,9 +501,9 @@ export default function Newsletter() {
                       </div>
 
                       {/* Microsoft Chart */}
-                      <div className="my-8 flex flex-col items-center">
+                      <div className="flex flex-col items-center">
                         <div 
-                          className={`relative overflow-hidden rounded-lg border border-slate-600 transition-all duration-300 ease-out w-2/3 ${
+                          className={`relative overflow-hidden rounded-lg border border-slate-600 transition-all duration-300 ease-out w-full max-w-2xl ${
                             hoveredImage === 'w4_chart5' ? 'scale-105 shadow-2xl shadow-cyan-500/20' : 'scale-100'
                           }`}
                           onMouseEnter={() => setHoveredImage('w4_chart5')}
@@ -528,9 +528,9 @@ export default function Newsletter() {
                       </div>
 
                       {/* Indian IT Chart */}
-                      <div className="my-8 flex flex-col items-center">
+                      <div className="flex flex-col items-center">
                         <div 
-                          className={`relative overflow-hidden rounded-lg border border-slate-600 transition-all duration-300 ease-out w-2/3 ${
+                          className={`relative overflow-hidden rounded-lg border border-slate-600 transition-all duration-300 ease-out w-full max-w-2xl ${
                             hoveredImage === 'w4_chart6' ? 'scale-105 shadow-2xl shadow-cyan-500/20' : 'scale-100'
                           }`}
                           onMouseEnter={() => setHoveredImage('w4_chart6')}
@@ -555,9 +555,9 @@ export default function Newsletter() {
                       </div>
 
                       {/* Nvidia and Oracle Chart */}
-                      <div className="my-8 flex flex-col items-center">
+                      <div className="flex flex-col items-center">
                         <div 
-                          className={`relative overflow-hidden rounded-lg border border-slate-600 transition-all duration-300 ease-out w-2/3 ${
+                          className={`relative overflow-hidden rounded-lg border border-slate-600 transition-all duration-300 ease-out w-full max-w-2xl ${
                             hoveredImage === 'w4_chart7' ? 'scale-105 shadow-2xl shadow-cyan-500/20' : 'scale-100'
                           }`}
                           onMouseEnter={() => setHoveredImage('w4_chart7')}
@@ -576,9 +576,9 @@ export default function Newsletter() {
                       </div>
 
                       {/* Nvidia and Oracle Chart2 */}
-                      <div className="my-8 flex flex-col items-center">
+                      <div className="flex flex-col items-center">
                         <div 
-                          className={`relative overflow-hidden rounded-lg border border-slate-600 transition-all duration-300 ease-out w-2/3 ${
+                          className={`relative overflow-hidden rounded-lg border border-slate-600 transition-all duration-300 ease-out w-full max-w-2xl ${
                             hoveredImage === 'w4_chart8' ? 'scale-105 shadow-2xl shadow-cyan-500/20' : 'scale-100'
                           }`}
                           onMouseEnter={() => setHoveredImage('w4_chart8')}
@@ -602,7 +602,7 @@ export default function Newsletter() {
                           But eventually, after all that carnage, there would be somewhere these software / services stocks will bottom. Where do you see the bottom happening?
                         </p>
                         
-                        <p className="leading-relaxed font-semibold text-lg">
+                        <p className="leading-relaxed font-semibold">
                           But more importantly, has the AI bull run runs its course (atleast for now)?
                         </p>
                       </div>
