@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import PageWrapper from "@/components/PageWrapper";
@@ -16,8 +16,45 @@ const ARTICLE_INDIA = "india-markets";
 const ARTICLE_GAS = "widowmaker";
 const ARTICLE_YEAR = "year-review";
 const ARTICLE_ALT = "altseason";
-  // Natural Gas article
-  // Market Insight article
+
+// THIS IS THE KEY PART - Handle sharing at the top level
+if (typeof window !== 'undefined') {
+  const pathname = window.location.pathname;
+  const searchParams = new URLSearchParams(window.location.search);
+  
+  console.log("🔍 Top level - Path:", pathname);
+  console.log("🔍 Top level - Search:", window.location.search);
+  
+  // Check if this is a share URL
+  if (pathname.includes('share')) {
+    console.log("📤 Share URL detected:", pathname);
+    
+    // Try to get article from query parameter first
+    let article = searchParams.get('article');
+    
+    // If not in query, try to extract from path (e.g., /share-india-markets)
+    if (!article && pathname.includes('-')) {
+      // Get everything after 'share-'
+      article = pathname.substring(pathname.indexOf('share-') + 6);
+      console.log("📤 Extracted from path:", article);
+    }
+    
+    if (article) {
+      console.log("✅ Found article to store:", article);
+      sessionStorage.setItem('newsletter_article', article);
+      localStorage.setItem('newsletter_article', article);
+      document.cookie = `newsletter_article=${article}; path=/; max-age=60`;
+      
+      // Verify storage
+      console.log("✅ Stored in sessionStorage:", sessionStorage.getItem('newsletter_article'));
+      console.log("✅ Stored in localStorage:", localStorage.getItem('newsletter_article'));
+      
+      // Redirect to clean newsletter URL
+      window.location.href = '/newsletter';
+    }
+  }
+}
+
 
 export default function Newsletter() {
   const [email, setEmail] = useState("");
@@ -34,19 +71,26 @@ export default function Newsletter() {
   const [isSharedView, setIsSharedView] = useState(false);
   const [isSubscribing, setIsSubscribing] = useState(false);
 
-  const getShareLinks = (article: string) => {
-    const shareUrl = `https://aifinverse.com/newsletter?article=${article}`;
-    const message = `Check out this market insight article 👇\n\n${shareUrl}`;
+  const hasProcessed = useRef(false);
 
-    return {
-      whatsapp: `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`,
-      telegram: `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(
-        "Check out this market insight article"
-      )}`,
-      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`,
-      copy: shareUrl,
-    };
+  const getShareLinks = (article: string) => {
+  const baseUrl = process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:3000' 
+    : 'https://aifinverse.com';
+  
+  // Use query parameter instead of path to avoid truncation issues
+  const shareUrl = `${baseUrl}/share?article=${encodeURIComponent(article)}`;
+  const message = `Check out this market insight article 👇\n\n${shareUrl}`;
+  const encodedMessage = encodeURIComponent(message);
+
+  return {
+    whatsapp: `https://api.whatsapp.com/send?text=${encodedMessage}`,
+    telegram: `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent("Check out this market insight article")}`,
+    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`,
+    copy: shareUrl,
   };
+};
+
 
   // Close share panel when clicking outside
   useEffect(() => {
@@ -68,56 +112,79 @@ export default function Newsletter() {
     };
   }, [showShare]);
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const article = params.get("article");
+ 
+useEffect(() => {
+  // Log everything at the start
+  console.log("📋 NEWSLETTER PAGE - Starting check");
+  console.log("📋 Current URL:", window.location.href);
+  console.log("📋 Search params:", window.location.search);
+  
+  // Try multiple sources
+  const urlArticle = new URLSearchParams(window.location.search).get("article");
+  const sessionArticle = sessionStorage.getItem('newsletter_article');
+  const localArticle = localStorage.getItem('newsletter_article');
+  
+  // Get cookie
+  const cookieMatch = document.cookie.match(/newsletter_article=([^;]+)/);
+  const cookieArticle = cookieMatch ? cookieMatch[1] : null;
 
-    console.log("🔍 DEBUG: URL Article Parameter:", article);
-    console.log("🔍 DEBUG: isSharedView will be:", !!article);
+  console.log("📋 All sources:");
+  console.log("  - URL param:", urlArticle);
+  console.log("  - sessionStorage:", sessionArticle);
+  console.log("  - localStorage:", localArticle);
+  console.log("  - cookie:", cookieArticle);
 
-    if (article) {
-      setIsSharedView(true);
+  // Use the first available article
+  const article = urlArticle || sessionArticle || localArticle || cookieArticle;
+  console.log("✅ Using article:", article);
 
-      // Log which article state will be set
-      console.log("🔍 DEBUG: Collapsing ALL articles first");
-      setExpandedArticle1(false);
-      setExpandedArticle2(false);
-      setExpandedArticle3(false);
-      setExpandedArticle4(false);
-      setExpandedArticle5(false);
-      
-      // Then, expand ONLY the requested article
-      if (article === "ai-giveth") {
-        console.log("Expanding Article 2 (AI-Giveth)");
-        setExpandedArticle1(true);
-      }
-      else if (article === "india-markets") {
-        console.log("Expanding Article 2 (India Markets)");
-        setExpandedArticle1(true);
-      } else if (article === "widowmaker") {
-        console.log("Expanding Article 3 (Widowmaker)");
-        setExpandedArticle2(true);
-      } else if (article === "year-review") {
-        console.log("Expanding Article 4 (Year Review)");
-        setExpandedArticle3(true);
-      } else if (article === "altseason") {
-        console.log("Expanding Article 5 (Altseason)");
-        setExpandedArticle4(true);
-      } else {
-        console.warn("Unknown article ID:", article);
-        // Optionally, expand the first article as fallback
-        setExpandedArticle4(true);
-      }
+  // Clear storage after reading
+  if (!urlArticle) {
+    sessionStorage.removeItem('newsletter_article');
+    localStorage.removeItem('newsletter_article');
+    document.cookie = 'newsletter_article=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
+  }
+
+  if (article && !hasProcessed.current) {
+    console.log("🎯 Expanding article:", article);
+    hasProcessed.current = true;
+    setIsSharedView(true);
+
+    // Collapse all first
+    setExpandedArticle1(false);
+    setExpandedArticle2(false);
+    setExpandedArticle3(false);
+    setExpandedArticle4(false);
+    setExpandedArticle5(false);
+    
+    // Expand the correct one
+    if (article === "ai-giveth") {
+      console.log("Expanding Article 1");
+      setExpandedArticle1(true);
+    } else if (article === "india-markets") {
+      console.log("Expanding Article 2");
+      setExpandedArticle2(true);
+    } else if (article === "widowmaker") {
+      console.log("Expanding Article 3");
+      setExpandedArticle3(true);
+    } else if (article === "year-review") {
+      console.log("Expanding Article 4");
+      setExpandedArticle4(true);
+    } else if (article === "altseason") {
+      console.log("Expanding Article 5");
+      setExpandedArticle5(true);
     } else {
-      setIsSharedView(false);
-      // When no article parameter, show collapsed view
-      setExpandedArticle1(false);
-      setExpandedArticle2(false);
-      setExpandedArticle3(false);
-      setExpandedArticle4(false);
-      setExpandedArticle5(false);
+      console.log("Unknown article, expanding Article 1");
+      setExpandedArticle1(true);
     }
-  }, []); // Remove window.location.search dependency
+  } else {
+    console.log("📋 No article to expand or already processed");
+  }
+}, []);
+  
+  
+
+
 
   const handleSubscribe = async () => {
     // Validation
@@ -611,21 +678,17 @@ export default function Newsletter() {
 
                   {/* Show Read More/Less button */}
                   <button
-                    onClick={() => setExpandedArticle1(!expandedArticle1)}
-                    className="mt-8 px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-violet-400 font-medium transition-all duration-200 flex items-center gap-2 group"
-                  >
-                    {expandedArticle1 ? (
-                      <>
-                        <span>Read Less</span>
-                        <span className="group-hover:-translate-y-0.5 transition-transform">↑</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>Read Full Article</span>
-                        <span className="group-hover:translate-y-0.5 transition-transform">↓</span>
-                      </>
-                    )}
-                  </button>
+  id="article-1-button"
+  onClick={() => {
+    console.log("🔴 Article 1 button clicked");
+    console.log("Current expandedArticle1:", expandedArticle1);
+    console.log("Setting to:", !expandedArticle1);
+    setExpandedArticle1(!expandedArticle1);
+  }}
+  className="mt-8 px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-violet-400 font-medium transition-all duration-200 flex items-center gap-2 group"
+>
+  {expandedArticle1 ? "Read Less ↑" : "Read Full Article ↓"}
+</button>
                 </div>
               </div>
             </div>
@@ -851,21 +914,17 @@ export default function Newsletter() {
 
                   {/* Show Read More/Less button */}
                   <button
-                    onClick={() => setExpandedArticle2(!expandedArticle2)}
-                    className="mt-8 px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-purple-400 font-medium transition-all duration-200 flex items-center gap-2 group"
-                  >
-                    {expandedArticle2 ? (
-                      <>
-                        <span>Read Less</span>
-                        <span className="group-hover:-translate-y-0.5 transition-transform">↑</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>Read Full Article</span>
-                        <span className="group-hover:translate-y-0.5 transition-transform">↓</span>
-                      </>
-                    )}
-                  </button>
+  id="article-2-button"
+  onClick={() => {
+    console.log("🟠 Article 2 button clicked");
+    console.log("Current expandedArticle2:", expandedArticle2);
+    console.log("Setting to:", !expandedArticle2);
+    setExpandedArticle2(!expandedArticle2);
+  }}
+  className="mt-8 px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-purple-400 font-medium transition-all duration-200 flex items-center gap-2 group"
+>
+  {expandedArticle2 ? "Read Less ↑" : "Read Full Article ↓"}
+</button>
                 </div>
               </div>
             </div>
@@ -1048,22 +1107,18 @@ export default function Newsletter() {
                   )}
 
                   {/* Show Read More/Less button */}
-                  <button
-                    onClick={() => setExpandedArticle3(!expandedArticle3)}
-                    className="mt-8 px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-red-400 font-medium transition-all duration-200 flex items-center gap-2 group"
-                  >
-                    {expandedArticle3 ? (
-                      <>
-                        <span>Read Less</span>
-                        <span className="group-hover:-translate-y-0.5 transition-transform">↑</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>Read Full Article</span>
-                        <span className="group-hover:translate-y-0.5 transition-transform">↓</span>
-                      </>
-                    )}
-                  </button>
+                 <button
+  id="article-3-button"
+  onClick={() => {
+    console.log("🟡 Article 3 button clicked");
+    console.log("Current expandedArticle3:", expandedArticle3);
+    console.log("Setting to:", !expandedArticle3);
+    setExpandedArticle3(!expandedArticle3);
+  }}
+  className="mt-8 px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-red-400 font-medium transition-all duration-200 flex items-center gap-2 group"
+>
+  {expandedArticle3 ? "Read Less ↑" : "Read Full Article ↓"}
+</button>
                 </div>
               </div>
             </div>
@@ -1386,21 +1441,17 @@ export default function Newsletter() {
 
                   {/* Show Read More/Less button */}
                   <button
-                    onClick={() => setExpandedArticle4(!expandedArticle4)}
-                    className="mt-8 px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-amber-400 font-medium transition-all duration-200 flex items-center gap-2 group"
-                  >
-                    {expandedArticle4 ? (
-                      <>
-                        <span>Read Less</span>
-                        <span className="group-hover:-translate-y-0.5 transition-transform">↑</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>Read Full Article</span>
-                        <span className="group-hover:translate-y-0.5 transition-transform">↓</span>
-                      </>
-                    )}
-                  </button>
+  id="article-4-button"
+  onClick={() => {
+    console.log("🟢 Article 4 button clicked");
+    console.log("Current expandedArticle4:", expandedArticle4);
+    console.log("Setting to:", !expandedArticle4);
+    setExpandedArticle4(!expandedArticle4);
+  }}
+  className="mt-8 px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-amber-400 font-medium transition-all duration-200 flex items-center gap-2 group"
+>
+  {expandedArticle4 ? "Read Less ↑" : "Read Full Article ↓"}
+</button>
                 </div>
               </div>
             </div>
@@ -1791,23 +1842,28 @@ export default function Newsletter() {
                     </div>
                   )}
 
-                  {/* Show Read More/Less button */}
                   <button
-                    onClick={() => setExpandedArticle5(!expandedArticle5)}
-                    className="mt-8 px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-cyan-400 font-medium transition-all duration-200 flex items-center gap-2 group"
-                  >
-                    {expandedArticle5 ? (
-                      <>
-                        <span>Read Less</span>
-                        <span className="group-hover:-translate-y-0.5 transition-transform">↑</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>Read Full Article</span>
-                        <span className="group-hover:translate-y-0.5 transition-transform">↓</span>
-                      </>
-                    )}
-                  </button>
+  id="article-5-button"
+  onClick={() => {
+    console.log("🔵 Article 5 button clicked");
+    console.log("Current expandedArticle5:", expandedArticle5);
+    console.log("Setting to:", !expandedArticle5);
+    setExpandedArticle5(!expandedArticle5);
+  }}
+  className="mt-8 px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-cyan-400 font-medium transition-all duration-200 flex items-center gap-2 group"
+>
+  {expandedArticle5 ? (
+    <>
+      <span>Read Less</span>
+      <span className="group-hover:-translate-y-0.5 transition-transform">↑</span>
+    </>
+  ) : (
+    <>
+      <span>Read Full Article</span>
+      <span className="group-hover:translate-y-0.5 transition-transform">↓</span>
+    </>
+  )}
+</button>
                 </div>
               </div>
             </div>
