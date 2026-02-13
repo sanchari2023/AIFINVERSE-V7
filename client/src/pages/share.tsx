@@ -1,59 +1,44 @@
 // client/src/pages/share.tsx
 import { useEffect } from 'react';
-import { useRouter } from 'next/router';
 
 export default function SharePage() {
-  const router = useRouter();
-  
   useEffect(() => {
-    if (!router.isReady) return;
-    
-    const { article } = router.query;
+    const params = new URLSearchParams(window.location.search);
+    const article = params.get('article');
     
     if (article) {
-      const articleStr = Array.isArray(article) ? article[0] : article;
-      
-      // Store article
-      sessionStorage.setItem('newsletter_article', articleStr);
-      localStorage.setItem('newsletter_article', articleStr);
-      document.cookie = `newsletter_article=${articleStr}; path=/; max-age=60`;
+      sessionStorage.setItem('newsletter_article', article);
+      localStorage.setItem('newsletter_article', article);
+      document.cookie = `newsletter_article=${article}; path=/; max-age=60`;
     }
     
-    // Redirect
-    setTimeout(() => {
-      router.replace('/newsletter');
-    }, 500); // Slightly longer to show the nice animation
-  }, [router.isReady, router.query]);
+    // Use replace instead of href for smoother transition
+    window.location.replace('/newsletter');
+  }, []);
   
   return (
     <div style={{
-      height: '100vh',
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
       display: 'flex',
-      flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
       background: '#0f172a',
       color: '#06b6d4',
-      fontFamily: 'system-ui, sans-serif'
+      zIndex: 9999
     }}>
-      {/* Simple Spinner */}
       <div style={{
         width: '40px',
         height: '40px',
         border: '3px solid #1e293b',
         borderTopColor: '#06b6d4',
         borderRadius: '50%',
-        animation: 'spin 0.8s linear infinite',
-        marginBottom: '1rem'
+        animation: 'spin 0.8s linear infinite'
       }} />
-      
-      <p style={{ fontSize: '1.1rem' }}>Loading article...</p>
-      
-      <style>{`
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
   );
 }

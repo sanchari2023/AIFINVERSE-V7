@@ -18,39 +18,29 @@ const ARTICLE_YEAR = "year-review";
 const ARTICLE_ALT = "altseason";
 
 // THIS IS THE KEY PART - Handle sharing at the top level
+// THIS IS THE KEY PART - Handle sharing at the top level
 if (typeof window !== 'undefined') {
-  const pathname = window.location.pathname;
-  const searchParams = new URLSearchParams(window.location.search);
-  
-  console.log("🔍 Top level - Path:", pathname);
-  console.log("🔍 Top level - Search:", window.location.search);
-  
-  // Check if this is a share URL
-  if (pathname.includes('share')) {
-    console.log("📤 Share URL detected:", pathname);
+  // Check if this is the newsletter page with share parameter
+  if (window.location.pathname === '/newsletter') {
+    const searchParams = new URLSearchParams(window.location.search);
+    const shareArticle = searchParams.get('share');
     
-    // Try to get article from query parameter first
-    let article = searchParams.get('article');
-    
-    // If not in query, try to extract from path (e.g., /share-india-markets)
-    if (!article && pathname.includes('-')) {
-      // Get everything after 'share-'
-      article = pathname.substring(pathname.indexOf('share-') + 6);
-      console.log("📤 Extracted from path:", article);
-    }
-    
-    if (article) {
-      console.log("✅ Found article to store:", article);
-      sessionStorage.setItem('newsletter_article', article);
-      localStorage.setItem('newsletter_article', article);
-      document.cookie = `newsletter_article=${article}; path=/; max-age=60`;
+    if (shareArticle) {
+      console.log("📤 Share parameter detected:", shareArticle);
       
-      // Verify storage
+      // Store the article
+      sessionStorage.setItem('newsletter_article', shareArticle);
+      localStorage.setItem('newsletter_article', shareArticle);
+      document.cookie = `newsletter_article=${shareArticle}; path=/; max-age=60`;
+      
       console.log("✅ Stored in sessionStorage:", sessionStorage.getItem('newsletter_article'));
-      console.log("✅ Stored in localStorage:", localStorage.getItem('newsletter_article'));
       
-      // Redirect to clean newsletter URL
-      window.location.href = '/newsletter';
+      // IMPORTANT: Remove the share parameter from URL without reloading
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+      
+      // Don't redirect - we're already on the right page!
+      // Just let the component render normally
     }
   }
 }
@@ -78,8 +68,8 @@ export default function Newsletter() {
     ? 'http://localhost:3000' 
     : 'https://aifinverse.com';
   
-  // Use query parameter instead of path to avoid truncation issues
-  const shareUrl = `${baseUrl}/share?article=${encodeURIComponent(article)}`;
+  // Use newsletter page with share parameter
+  const shareUrl = `${baseUrl}/newsletter?share=${encodeURIComponent(article)}`;
   const message = `Check out this market insight article 👇\n\n${shareUrl}`;
   const encodedMessage = encodeURIComponent(message);
 
