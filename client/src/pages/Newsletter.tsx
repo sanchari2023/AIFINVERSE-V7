@@ -61,6 +61,8 @@ export default function Newsletter() {
   const [isSharedView, setIsSharedView] = useState(false);
   const [isSubscribing, setIsSubscribing] = useState(false);
 
+  const [showEmptyMessage, setShowEmptyMessage] = useState(false);
+
   const hasProcessed = useRef(false);
 
   const getShareLinks = (article: string) => {
@@ -321,18 +323,20 @@ useEffect(() => {
           {/*------------------   ARTICLES ------------------  */}
       
           {isSharedView && (
-            <div className="mb-6">
-              <a
-                href="/newsletter"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-cyan-400 font-medium transition-all duration-200"
-              >
-                ← Back to All Articles
-              </a>
-            </div>
-          )}
+  <div className="mb-6">
+    <a
+      href="/newsletter"
+      className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-cyan-400 font-medium transition-all duration-200"
+    >
+      ← Back to All Articles
+    </a>
+  </div>
+)}
 
 
           {/* ARTICLE 1 - AI GIVETH AND TAKETH */}
+          {(!isSharedView || expandedArticle1) && (
+  
 
           <section id="ai-giveth" className="mb-16">
             <div className="p-6 bg-slate-800/60 border border-slate-700/50 rounded-xl backdrop-blur-sm">
@@ -667,25 +671,40 @@ useEffect(() => {
                   )}
 
                   {/* Show Read More/Less button */}
-                  <button
-  id="article-1-button"
-  onClick={() => {
-    console.log("🔴 Article 1 button clicked");
-    console.log("Current expandedArticle1:", expandedArticle1);
-    console.log("Setting to:", !expandedArticle1);
-    setExpandedArticle1(!expandedArticle1);
-  }}
-  className="mt-8 px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-violet-400 font-medium transition-all duration-200 flex items-center gap-2 group"
->
-  {expandedArticle1 ? "Read Less ↑" : "Read Full Article ↓"}
-</button>
+                  {!isSharedView && (
+  <button
+    id="article-1-button"
+    onClick={() => {
+      console.log("🔵 Article 1 button clicked");
+      console.log("Current expandedArticle1:", expandedArticle1);
+      console.log("Setting to:", !expandedArticle1);
+      setExpandedArticle1(!expandedArticle1);
+    }}
+    className="mt-8 px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-cyan-400 font-medium transition-all duration-200 flex items-center gap-2 group"
+  >
+    {expandedArticle1 ? (
+      <>
+        <span>Read Less</span>
+        <span className="group-hover:-translate-y-0.5 transition-transform">↑</span>
+      </>
+    ) : (
+      <>
+        <span>Read Full Article</span>
+        <span className="group-hover:translate-y-0.5 transition-transform">↓</span>
+      </>
+    )}
+  </button>
+)}
                 </div>
               </div>
             </div>
           </section>
+          )}
 
 
           {/* ARTICLE 2 - INDIA MARKETS */}
+
+          {(!isSharedView || expandedArticle2) && (
           
           <section id="india-markets" className="mb-16">
             <div className="p-6 bg-slate-800/60 border border-slate-700/50 rounded-xl backdrop-blur-sm">
@@ -903,24 +922,38 @@ useEffect(() => {
                   )}
 
                   {/* Show Read More/Less button */}
-                  <button
-  id="article-2-button"
-  onClick={() => {
-    console.log("🟠 Article 2 button clicked");
-    console.log("Current expandedArticle2:", expandedArticle2);
-    console.log("Setting to:", !expandedArticle2);
-    setExpandedArticle2(!expandedArticle2);
-  }}
-  className="mt-8 px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-purple-400 font-medium transition-all duration-200 flex items-center gap-2 group"
->
-  {expandedArticle2 ? "Read Less ↑" : "Read Full Article ↓"}
-</button>
+                 {!isSharedView && (
+  <button
+    id="article-2-button"
+    onClick={() => {
+      console.log("🔵 Article 2 button clicked");
+      console.log("Current expandedArticle2:", expandedArticle2);
+      console.log("Setting to:", !expandedArticle2);
+      setExpandedArticle2(!expandedArticle2);
+    }}
+    className="mt-8 px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-cyan-400 font-medium transition-all duration-200 flex items-center gap-2 group"
+  >
+    {expandedArticle2 ? (
+      <>
+        <span>Read Less</span>
+        <span className="group-hover:-translate-y-0.5 transition-transform">↑</span>
+      </>
+    ) : (
+      <>
+        <span>Read Full Article</span>
+        <span className="group-hover:translate-y-0.5 transition-transform">↓</span>
+      </>
+    )}
+  </button>
+)}
                 </div>
               </div>
             </div>
           </section>
+          )}
       
           {/* ARTICLE 3 - NATURAL GAS */}
+{(!isSharedView || expandedArticle3) && (
           <section id="widowmaker" className="mb-16">
             <div className="p-6 bg-slate-800/60 border border-slate-700/50 rounded-xl backdrop-blur-sm">
               <div className="flex items-center gap-4 text-sm text-gray-400 mb-6 flex-wrap border-b border-slate-700/50 pb-4">
@@ -1097,24 +1130,38 @@ useEffect(() => {
                   )}
 
                   {/* Show Read More/Less button */}
-                 <button
-  id="article-3-button"
-  onClick={() => {
-    console.log("🟡 Article 3 button clicked");
-    console.log("Current expandedArticle3:", expandedArticle3);
-    console.log("Setting to:", !expandedArticle3);
-    setExpandedArticle3(!expandedArticle3);
-  }}
-  className="mt-8 px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-red-400 font-medium transition-all duration-200 flex items-center gap-2 group"
->
-  {expandedArticle3 ? "Read Less ↑" : "Read Full Article ↓"}
-</button>
+                 {!isSharedView && (
+  <button
+    id="article-3-button"
+    onClick={() => {
+      console.log("🔵 Article 3 button clicked");
+      console.log("Current expandedArticle3:", expandedArticle3);
+      console.log("Setting to:", !expandedArticle3);
+      setExpandedArticle3(!expandedArticle3);
+    }}
+    className="mt-8 px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-cyan-400 font-medium transition-all duration-200 flex items-center gap-2 group"
+  >
+    {expandedArticle3 ? (
+      <>
+        <span>Read Less</span>
+        <span className="group-hover:-translate-y-0.5 transition-transform">↑</span>
+      </>
+    ) : (
+      <>
+        <span>Read Full Article</span>
+        <span className="group-hover:translate-y-0.5 transition-transform">↓</span>
+      </>
+    )}
+  </button>
+)}
                 </div>
               </div>
             </div>
           </section>
+          )}
 
           {/* ARTICLE 4 - YEAR REVIEW */}
+{(!isSharedView || expandedArticle4) && (
           <section id="year-review" className="mb-16">
             <div className="p-6 bg-slate-800/60 border border-slate-700/50 rounded-xl backdrop-blur-sm">
               <div className="flex items-center gap-4 text-sm text-gray-400 mb-6 flex-wrap border-b border-slate-700/50 pb-4">
@@ -1430,24 +1477,38 @@ useEffect(() => {
                   )}
 
                   {/* Show Read More/Less button */}
-                  <button
-  id="article-4-button"
-  onClick={() => {
-    console.log("🟢 Article 4 button clicked");
-    console.log("Current expandedArticle4:", expandedArticle4);
-    console.log("Setting to:", !expandedArticle4);
-    setExpandedArticle4(!expandedArticle4);
-  }}
-  className="mt-8 px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-amber-400 font-medium transition-all duration-200 flex items-center gap-2 group"
->
-  {expandedArticle4 ? "Read Less ↑" : "Read Full Article ↓"}
-</button>
+                  {!isSharedView && (
+  <button
+    id="article-4-button"
+    onClick={() => {
+      console.log("🔵 Article 4 button clicked");
+      console.log("Current expandedArticle4:", expandedArticle4);
+      console.log("Setting to:", !expandedArticle4);
+      setExpandedArticle4(!expandedArticle4);
+    }}
+    className="mt-8 px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-cyan-400 font-medium transition-all duration-200 flex items-center gap-2 group"
+  >
+    {expandedArticle4 ? (
+      <>
+        <span>Read Less</span>
+        <span className="group-hover:-translate-y-0.5 transition-transform">↑</span>
+      </>
+    ) : (
+      <>
+        <span>Read Full Article</span>
+        <span className="group-hover:translate-y-0.5 transition-transform">↓</span>
+      </>
+    )}
+  </button>
+)}
                 </div>
               </div>
             </div>
           </section>
+          )}
 
-          {/* ARTICLE 5 - ALTSEASON */}
+         {/* ARTICLE 5 - ALTSEASON */}
+{(!isSharedView || expandedArticle5) && (
           <section id="altseason" className="mb-16">
             <div className="p-6 bg-slate-800/60 border border-slate-700/50 rounded-xl backdrop-blur-sm">
               <div className="flex items-center gap-4 text-sm text-gray-400 mb-6 flex-wrap border-b border-slate-700/50 pb-4">
@@ -1832,32 +1893,36 @@ useEffect(() => {
                     </div>
                   )}
 
-                  <button
-  id="article-5-button"
-  onClick={() => {
-    console.log("🔵 Article 5 button clicked");
-    console.log("Current expandedArticle5:", expandedArticle5);
-    console.log("Setting to:", !expandedArticle5);
-    setExpandedArticle5(!expandedArticle5);
-  }}
-  className="mt-8 px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-cyan-400 font-medium transition-all duration-200 flex items-center gap-2 group"
->
-  {expandedArticle5 ? (
-    <>
-      <span>Read Less</span>
-      <span className="group-hover:-translate-y-0.5 transition-transform">↑</span>
-    </>
-  ) : (
-    <>
-      <span>Read Full Article</span>
-      <span className="group-hover:translate-y-0.5 transition-transform">↓</span>
-    </>
-  )}
-</button>
+
+{!isSharedView && (
+  <button
+    id="article-5-button"
+    onClick={() => {
+      console.log("🔵 Article 5 button clicked");
+      console.log("Current expandedArticle5:", expandedArticle5);
+      console.log("Setting to:", !expandedArticle5);
+      setExpandedArticle5(!expandedArticle5);
+    }}
+    className="mt-8 px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-cyan-400 font-medium transition-all duration-200 flex items-center gap-2 group"
+  >
+    {expandedArticle5 ? (
+      <>
+        <span>Read Less</span>
+        <span className="group-hover:-translate-y-0.5 transition-transform">↑</span>
+      </>
+    ) : (
+      <>
+        <span>Read Full Article</span>
+        <span className="group-hover:translate-y-0.5 transition-transform">↓</span>
+      </>
+    )}
+  </button>
+)}
                 </div>
               </div>
             </div>
           </section>
+          )}
 
           {/* ================= FOOTER ================= */}
           <footer className="mt-20 py-4 bg-slate-1000/50 text-center text-sm text-slate-500">
